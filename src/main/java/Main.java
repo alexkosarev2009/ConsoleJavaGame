@@ -19,6 +19,8 @@ public class Main {
     private static int difficulty = 1;
 
     private static int step = 0;
+    private static long start;
+    private static long end;
 
     private static final Person person = new Person(BOARD_SIZE);
 
@@ -29,7 +31,6 @@ public class Main {
     private static final String leftBlock = " | ";
     private static final String rightBlock = " |";
     private static final String wall = " + " + "—— + ".repeat(BOARD_SIZE);
-
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final Random random = new Random();
@@ -76,7 +77,7 @@ public class Main {
 
 
         System.out.println(
-                "Привет! Ты готов начать играть в игру? "
+                "Привет! Ты готов начать играть в игру?"
                         + "(Напиши: ДА или НЕТ)"
         );
 
@@ -89,7 +90,7 @@ public class Main {
                 System.out.println("Выбери сложность игры (от 1 до 5):");
                 difficulty = scanner.nextInt();
                 System.out.println("Выбранная сложность:\t" + difficulty);
-
+                start = System.currentTimeMillis();
                 do {
                     board[person.getY() - 1][person.getX() - 1] = personIcon;
 
@@ -115,6 +116,7 @@ public class Main {
                         hasLost = true;
                     }
                 } while (!isGameFinished);
+                end = System.currentTimeMillis();
                 printEndGame();
                 break;
 
@@ -142,6 +144,7 @@ public class Main {
         System.out.println(wall);
 
     }
+
     private static void inputMove() {
         System.out.println("Введите куда будет ходить персонаж (ход возможен только по вертикали и горизонтали на одну клетку)" +
                 "\nКоординаты персонажа - (x: " + person.getX() + ", y: " + person.getY() + ")");
@@ -163,8 +166,7 @@ public class Main {
                 case castle -> {
                     if (!hasFoundKey) {
                         System.out.println("Башня заперта на ключ!");
-                    }
-                    else {
+                    } else {
                         System.out.println("Вы прошли игру!");
                         isGameFinished = true;
                     }
@@ -219,8 +221,7 @@ public class Main {
                             System.out.println("Вас укусил ядовитый паук! (-1 жизнь)");
                             person.takeDamage(1);
                         }
-                    }
-                    else {
+                    } else {
                         System.out.println("Вы нашли ключ от башни!");
                         hasFoundKey = true;
                     }
@@ -236,11 +237,13 @@ public class Main {
             System.out.println("Некорректный ход");
         }
     }
+
     private static boolean useLastChance() {
-        int poison = random.nextInt(1,4);
+        int poison = random.nextInt(1, 4);
         System.out.println("Ты нашёл 3 одинаковых по виду зелья, какое из них выпьешь? (1, 2 или 3)");
         return scanner.nextInt() != poison;
     }
+
     private static int[] findRandomFreeCell(int rowStart, int rowEnd, int colStart, int colEnd) {
         int x, y;
 
@@ -263,7 +266,10 @@ public class Main {
         String title = hasLost
                 ? "ПОРАЖЕНИЕ"
                 : "ПОБЕДА!";
-
+        long durationMs = end - start;
+        long minutes = (durationMs / 1000) / 60;
+        long seconds = (durationMs / 1000) % 60;
+        String timeStr = String.format("%d мин %d сек", minutes, seconds);
         String message = hasLost
                 ? "Ты пал в этом приключении..."
                 : "Ты смог попасть в башню!";
@@ -278,6 +284,7 @@ public class Main {
         System.out.println("╠══════════════════════════════╣");
         System.out.printf("║ Сложность:  %-16d ║%n", difficulty);
         System.out.printf("║ Ходы:       %-16d ║%n", step);
+        System.out.printf("║ Время:      %-16s ║%n", timeStr);
         System.out.printf("║ Счёт:       %-16d ║%n", score);
         System.out.println(bottomLine);
     }
